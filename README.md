@@ -58,7 +58,7 @@ The entire experiment consists of three steps:
 * Perform downstream tasks by using generated data.
 
 First, we design a VAE model with attention mechanism. Then, we select the SOC values for training and filter the corresponding data from folder __data__ to train the VAE. After obtaining the VAE model, we perform scaling on the latent space informed by prior knowledge and sample from the scaled latent space to generate data. Finally, we use the generated data to train a random forest model to predict SOH.
-## 4.1 CVAE with cross attention for data generation
+## 4.1 VAE with cross attention for data generation
 To allow the network to focus on relevant aspects of the voltage response matrix $x$ conditioned by the additional retirement condition information $cond$, we introduced the attention mechanism in both the encoder and decoder of the VAE. Here, we use the encoder as an example to illustrate.
 
 The encoder network in the variational autoencoder is designed to process and compress input data into a latent space. It starts by taking the 21-dimensional battery voltage response feature matrix $x$ as main input and retirement condition matrix of the retired batteries $cond=[SOC,SOH]$ as conditional input. The condition input is first transformed into an embedding $C$, belonging to a larger latent space with 64-dimension. The conditional embedding $C$ is formulated as: 
