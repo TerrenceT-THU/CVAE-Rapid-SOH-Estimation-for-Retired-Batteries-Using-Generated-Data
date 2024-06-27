@@ -1,5 +1,5 @@
-# Rapid and Sustainable Pretreatment for Retired Battery Recycling Amid Random Conditions Using Generative Machine Learning
-Rapid and accurate pretreatment for state of health (SOH) estimation in retired batteries is crucial for recycling sustainability. Data-driven approaches, while innovative in SOH estimation, require exhaustive data collection and are sensitive to retirement conditions. Here we show that the generative machine learning strategy can alleviate such a challenge, validated through a unique dataset of 2720 retired lithium-ion battery samples, covering 3 cathode material types, 3 physical formats, 4 capacity designs, and 4 historical usages. With generated data, a simple regressor realizes an accurate pretreatment, with mean absolute percentage errors below 6%, even under unseen retirement conditions.
+# Generative-learning-assisted Rapid State-of-Health Estimation for Sustainable Battery Recycling with Random Retirement Conditions
+Rapid and accurate pretreatment for state of health (SOH) estimation in retired batteries is crucial for recycling sustainability. Data-driven approaches, while innovative in SOH estimation, require exhaustive data collection and are sensitive to retirement conditions. Here we show that the generative machine learning strategy can alleviate such a challenge, validated through a unique dataset of 2700 retired lithium-ion battery samples, covering 3 cathode material types, 3 physical formats, 4 capacity designs, and 4 historical usages. With generated data, a simple regressor realizes an accurate pretreatment, with mean absolute percentage errors below 6%, even under unseen retirement conditions.
 
 # 1. Setup
 ## 1.1 Enviroments
@@ -49,16 +49,16 @@ hyperparams = {
 * After changing the experiment settings, __run `main.py` directly.__
 * The experiment contains two parts:
     * Leverage generative machine learning to generate data under unseen retirement conditions based on already-measured data.
-    * Use the generated data to supervise a random forest regressor which estimates the battery state of health (SOH).
+    * Use the generated data to supervise a random forest regressor which estimates the battery SOH.
 
 # 4. Experiment Details
 The entire experiment consists of three steps: 
-* Design and train the Attention-VAE model.
+* Design and train the Conditional-VAE (CVAE) model.
 * Latent space scaling and sampling to generate the data.
 * Perform downstream tasks by using generated data.
 
 First, we design a VAE model with attention mechanism. Then, we select the SOC values for training and filter the corresponding data from folder __data__ to train the VAE. After obtaining the VAE model, we perform scaling on the latent space informed by prior knowledge and sample from the scaled latent space to generate data. Finally, we use the generated data to train a random forest model to predict SOH.
-## 4.1 VAE(variational autoencoder) with cross attention for data generation
+## 4.1 CVAE with cross attention for data generation
 To allow the network to focus on relevant aspects of the voltage response matrix $x$ conditioned by the additional retirement condition information $cond$, we introduced the attention mechanism in both the encoder and decoder of the VAE. Here, we use the encoder as an example to illustrate.
 
 The encoder network in the variational autoencoder is designed to process and compress input data into a latent space. It starts by taking the 21-dimensional battery voltage response feature matrix $x$ as main input and retirement condition matrix of the retired batteries $cond=[SOC,SOH]$ as conditional input. The condition input is first transformed into an embedding $C$, belonging to a larger latent space with 64-dimension. The conditional embedding $C$ is formulated as: 
@@ -191,7 +191,7 @@ def generate_data(vae, train_features, train_condition, test_condition, encoder,
     return generated_data, generated_features, repeated_conditions_denormalized, history, train_generated_features
 ```
 ## 4.3 Random forest regressor for SOH estimation
-Since the data has been generated, the next step is to use the generated data to predict the State of Health (SOH). We use the generated data to train a random forest model to predict SOH，and the random forest for regression can be formulated as:
+Since the data has been generated, the next step is to use the generated data to predict the SOH. We use the generated data to train a random forest model to predict SOH，and the random forest for regression can be formulated as:
 $$\overline{y} = \overline{h}(\mathbf{X}) = \frac{1}{K} \sum_{k=1}^{K} h(\mathbf{X}; \vartheta_k, \theta_k)$$
 where $\overline{y}$ is the predicted SOH value vector. $K$ is the tree number in the random forest. $\vartheta_k$ and $\theta_k$ are the hyperparameters. i.e., the minimum leaf size and the maximum depth of the $k$ th tree in the random forest, respectively. In this study, the hyperparameters are set as equal across different battery retirement cases, i.e., $K=20$ , $\vartheta_k=1$, and $\theta_k=64$, for a fair comparison with the same model capability. 
 
